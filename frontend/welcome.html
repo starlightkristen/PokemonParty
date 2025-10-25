@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pokémon Academy — Welcome</title>
+  <style>body{font-family:sans-serif;background:#87CEEB;margin:0;padding:40px}</style>
+</head>
+<body>
+  <h1 class="title">POKéMON ACADEMY</h1>
+  <p id="statusMsg">◉ PREPARING MISSION PARAMETERS...</p>
+  <script>
+    // Minimal client to navigate by scene API
+    async function gotoCheckin(){ fetch('/api/scene/goto', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({to:'CHECKIN'})}).catch(()=>{}); }
+    document.addEventListener('keydown', e => { if (e.ctrlKey && e.key==='Enter') gotoCheckin(); });
+  </script>
+</body>
+</html>

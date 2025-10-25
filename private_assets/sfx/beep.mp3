@@ -1,0 +1,2 @@
+PLACEHOLDER: private_assets/sfx/beep.mp3
+Binary audio should be added here manually or run scripts/generate_placeholder_audio.py to create WAV placeholders.
