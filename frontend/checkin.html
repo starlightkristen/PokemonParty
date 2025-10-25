@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Check-In</title></head>
+<body>
+  <h2>Check-In Scanner</h2>
+  <div id="rosterList">Roster will appear here</div>
+  <input id="manualName" placeholder="TRAINER NAME"/>
+  <button id="manualAdd">Add</button>
+  <script>
+    document.getElementById('manualAdd').addEventListener('click', async ()=>{
+      const name = document.getElementById('manualName').value.trim();
+      if (!name) return alert('Enter name');
+      await fetch('/api/checkin/manual', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name})}).catch(()=>{});
+      // naive local feedback
+      const el = document.createElement('div'); el.textContent = name; document.getElementById('rosterList').appendChild(el);
+    });
+  </script>
+</body>
+</html>
