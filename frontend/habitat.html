@@ -7,7 +7,7 @@
   <style>
     body{font-family:sans-serif;padding:24px;background:#fff8dc}
     #pname{font-size:28px;font-weight:bold}
-    .crystal{display:inline-block;width:18px;height:18px;margin:4px;border-radius:4px;background:#ddd}
+    .crystal{display:inline-block;width:18px;height:18px;margin:4px;border-radius:4px;background:#ddd;transition:background .2s}
     .crystal.active{background:#ffb6c1}
   </style>
 </head>
@@ -18,15 +18,12 @@
     <div id="pdesc">Animal info will appear here.</div>
   </div>
   <div id="crystals" style="margin-top:12px">
-    <span class="crystal" id="c1"></span><span class="crystal" id="c2"></span><span class="crystal" id="c3"></span>
+    <span class="crystal" id="c1" data-test-id="crystal-1"></span>
+    <span class="crystal" id="c2" data-test-id="crystal-2"></span>
+    <span class="crystal" id="c3" data-test-id="crystal-3"></span>
   </div>
 
   <script>
-    function getQueryParam(name) {
-      const params = new URLSearchParams(window.location.search);
-      return params.get(name);
-    }
-
     async function fetchCatalog() {
       try {
         const r = await fetch('/api/animals/catalog');
@@ -50,8 +47,22 @@
       nameEl.textContent = (found && found.name) ? found.name.toUpperCase() : (id||'UNKNOWN').toUpperCase();
     }
 
+    // update crystals robustly: read progress from /api/scene/state and apply .active
+    async function updateCrystals() {
+      try {
+        const s = await fetch('/api/scene/state');
+        if (!s.ok) return;
+        const js = await s.json();
+        const prog = (js && js.data && js.data.progress) ? Number(js.data.progress) : 0;
+        const idx = Math.min(2, Math.floor(prog / 34));
+        // reset
+        for (let i=1;i<=3;i++) document.getElementById('c'+i).classList.remove('active');
+        if (idx >= 0) document.getElementById('c'+(idx+1)).classList.add('active');
+      } catch(e) { /* ignore */ }
+    }
+
     (async () => {
-      const initial = getQueryParam('animal');
+      const initial = new URLSearchParams(window.location.search).get('animal');
       const catalog = await fetchCatalog();
       if (initial) {
         renderAnimalId(initial, catalog);
@@ -60,31 +71,15 @@
         const curId = cur && cur.current ? cur.current : (catalog && catalog.animals && catalog.animals[0] && catalog.animals[0].id);
         renderAnimalId(curId, catalog);
       }
+      // Poll for changes
+      setInterval(async () => {
+        const catalog = await fetchCatalog();
+        const cur = await getCurrent();
+        const id = (cur && cur.current) ? cur.current : null;
+        renderAnimalId(id, catalog);
+        await updateCrystals();
+      }, 700);
     })();
-
-    // Poll to pick up changes - tests will post to /api/animals/current to change current_animal
-    setInterval(async () => {
-      const catalog = await fetchCatalog();
-      if (!catalog) return;
-      const cur = await getCurrent();
-      const id = (cur && cur.current) ? cur.current : null;
-      renderAnimalId(id, catalog);
-      // simple progress visualization if scene progress increments
-      try {
-        const s = await fetch('/api/scene/state');
-        if (s.ok) {
-          const js = await s.json();
-          const prog = window._lastProg || 0;
-          // toggle an active crystal when progress increases
-          const newProg = Math.min(100, (js.data && js.data.progress) || prog);
-          if (newProg > prog) {
-            const idx = Math.min(2, Math.floor(newProg / 34));
-            document.getElementById('c' + (idx+1)).classList.add('active');
-          }
-          window._lastProg = newProg;
-        }
-      } catch(e){}
-    }, 700);
   </script>
 </body>
 </html>
