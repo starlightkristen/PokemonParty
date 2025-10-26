@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Professor Intro - Pokémon Academy</title>
+  <style>
+    body{font-family:sans-serif;padding:24px;background:#f0f8ff}
+    .choice{display:inline-block;margin:8px;padding:10px;border:2px solid #ccc;border-radius:6px;cursor:pointer}
+    .winner{margin-top:18px;padding:12px;background:#e6ffe6;border:1px solid #8f8}
+    #choiceArea{margin-top:18px}
+  </style>
+</head>
+<body>
+  <h1>Professor Intro</h1>
+  <div id="prompt">Listen to the Professor's instructions.</div>
+
+  <div id="choiceArea" aria-live="polite">
+    <div class="choices">
+      <div class="choice" data-choice="A">A</div>
+      <div class="choice" data-choice="B">B</div>
+      <div class="choice" data-choice="C">C</div>
+    </div>
+  </div>
+
+  <div id="winnerBanner" style="display:none" class="winner">TEAM CHOSE: <span id="winnerText"></span></div>
+
+  <script>
+    async function fetchVotes() {
+      try {
+        const res = await fetch('/api/votes');
+        if (!res.ok) return null;
+        return await res.json();
+      } catch (e) { return null; }
+    }
+
+    function showWinner(w) {
+      if (!w) return;
+      document.getElementById('winnerText').textContent = w.winner || JSON.stringify(w);
+      document.getElementById('winnerBanner').style.display = 'block';
+    }
+
+    // allow clicking choices (local UI) but tests drive via API
+    document.querySelectorAll('.choice').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.choice').forEach(c => c.style.opacity = '0.6');
+        el.style.opacity = '1.0';
+      });
+    });
+
+    // Poll every 800ms for vote results so tests that POST to /api/vote/result are detected
+    setInterval(async () => {
+      const all = await fetchVotes();
+      if (!all) return;
+      for (const id in all) {
+        const v = all[id];
+        if (v && v.result) {
+          showWinner(v.result);
+          return;
+        }
+      }
+    }, 800);
+  </script>
+</body>
+</html>

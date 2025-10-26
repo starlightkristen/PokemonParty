@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Habitat</title>
+  <style>
+    body{font-family:sans-serif;padding:24px;background:#fff8dc}
+    #pname{font-size:28px;font-weight:bold}
+    .crystal{display:inline-block;width:18px;height:18px;margin:4px;border-radius:4px;background:#ddd}
+    .crystal.active{background:#ffb6c1}
+  </style>
+</head>
+<body>
+  <h1>Habitat</h1>
+  <div id="pinfo">
+    <div id="pname">UNKNOWN</div>
+    <div id="pdesc">Animal info will appear here.</div>
+  </div>
+  <div id="crystals" style="margin-top:12px">
+    <span class="crystal" id="c1"></span><span class="crystal" id="c2"></span><span class="crystal" id="c3"></span>
+  </div>
+
+  <script>
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    async function fetchCatalog() {
+      try {
+        const r = await fetch('/api/animals/catalog');
+        if (!r.ok) return null;
+        return await r.json();
+      } catch (e) { return null; }
+    }
+
+    async function getCurrent() {
+      try {
+        const r = await fetch('/api/animals/current');
+        if (!r.ok) return null;
+        return await r.json();
+      } catch (e) { return null; }
+    }
+
+    function renderAnimalId(id, catalog) {
+      const nameEl = document.getElementById('pname');
+      if (!catalog || !catalog.animals) { nameEl.textContent = (id||'UNKNOWN').toUpperCase(); return; }
+      const found = catalog.animals.find(a => a.id === id);
+      nameEl.textContent = (found && found.name) ? found.name.toUpperCase() : (id||'UNKNOWN').toUpperCase();
+    }
+
+    (async () => {
+      const initial = getQueryParam('animal');
+      const catalog = await fetchCatalog();
+      if (initial) {
+        renderAnimalId(initial, catalog);
+      } else {
+        const cur = await getCurrent();
+        const curId = cur && cur.current ? cur.current : (catalog && catalog.animals && catalog.animals[0] && catalog.animals[0].id);
+        renderAnimalId(curId, catalog);
+      }
+    })();
+
+    // Poll to pick up changes - tests will post to /api/animals/current to change current_animal
+    setInterval(async () => {
+      const catalog = await fetchCatalog();
+      if (!catalog) return;
+      const cur = await getCurrent();
+      const id = (cur && cur.current) ? cur.current : null;
+      renderAnimalId(id, catalog);
+      // simple progress visualization if scene progress increments
+      try {
+        const s = await fetch('/api/scene/state');
+        if (s.ok) {
+          const js = await s.json();
+          const prog = window._lastProg || 0;
+          // toggle an active crystal when progress increases
+          const newProg = Math.min(100, (js.data && js.data.progress) || prog);
+          if (newProg > prog) {
+            const idx = Math.min(2, Math.floor(newProg / 34));
+            document.getElementById('c' + (idx+1)).classList.add('active');
+          }
+          window._lastProg = newProg;
+        }
+      } catch(e){}
+    }, 700);
+  </script>
+</body>
+</html>

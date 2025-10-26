@@ -4,15 +4,52 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pokémon Academy — Welcome</title>
-  <style>body{font-family:sans-serif;background:#87CEEB;margin:0;padding:40px}</style>
+  <style>
+    body{font-family:sans-serif;background:#87CEEB;margin:0;padding:40px}
+    .title{font-size:36px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,0.15)}
+    #statusArea{margin-top:16px}
+    #statusDot{display:inline-block;width:14px;height:14px;border-radius:50%;background:#f00;margin-right:8px;vertical-align:middle}
+    button.navigate{margin-top:20px;padding:8px 12px;border-radius:6px}
+  </style>
 </head>
 <body>
   <h1 class="title">POKéMON ACADEMY</h1>
-  <p id="statusMsg">◉ PREPARING MISSION PARAMETERS...</p>
+  <div id="statusArea">
+    <span id="statusDot" aria-hidden="true"></span>
+    <span id="statusMsg">PREPARING MISSION PARAMETERS...</span>
+  </div>
+
+  <div style="margin-top:24px">
+    <button class="navigate" id="gotoCheckin">Go to Check-In (Ctrl+Enter)</button>
+  </div>
+
   <script>
-    // Minimal client to navigate by scene API
-    async function gotoCheckin(){ fetch('/api/scene/goto', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({to:'CHECKIN'})}).catch(()=>{}); }
-    document.addEventListener('keydown', e => { if (e.ctrlKey && e.key==='Enter') gotoCheckin(); });
+    // Minimal status & scene navigation hooks expected by tests
+    async function setStatus(ok) {
+      const dot = document.getElementById('statusDot');
+      const msg = document.getElementById('statusMsg');
+      if (ok) { dot.style.background = '#0c0'; msg.textContent = 'READY'; }
+      else { dot.style.background = '#f00'; msg.textContent = 'NOT READY'; }
+    }
+
+    document.getElementById('gotoCheckin').addEventListener('click', async () => {
+      try {
+        await fetch('/api/scene/goto', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ to: 'CHECKIN' }) });
+        // Navigate client-side as tests expect a navigation
+        location.href = '/checkin.html';
+      } catch (e) { console.error(e); }
+    });
+
+    // Ctrl+Enter keyboard shortcut (kept for tests convenience)
+    document.addEventListener('keydown', e => { if (e.ctrlKey && e.key === 'Enter') document.getElementById('gotoCheckin').click(); });
+
+    // initial health-check to set statusDot (tests query /api/health separately but having a visual is helpful)
+    (async () => {
+      try {
+        const r = await fetch('/api/health');
+        setStatus(r.ok);
+      } catch (e) { setStatus(false); }
+    })();
   </script>
 </body>
 </html>
