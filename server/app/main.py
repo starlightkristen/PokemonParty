@@ -64,6 +64,10 @@ async def health():
 async def animals_catalog():
     return {"animals": state["animals"]}
 
+@app.get("/api/animals/current")
+async def get_current_animal():
+    return {"status": "ok", "current": state.get("current_animal", "rabbit")}
+
 @app.post("/api/animals/current")
 async def set_current_animal(payload: AnimalCurrent):
     with lock:
@@ -114,6 +118,10 @@ async def vote_result(payload: VoteResult):
             raise HTTPException(status_code=404, detail="vote not found")
         v["result"] = {"winner": payload.winner, "percent": payload.percent}
     return {"status": "ok", "id": payload.id, "result": v["result"]}
+
+@app.get("/api/votes")
+async def get_votes():
+    return state["votes"]
 
 @app.post("/api/hold/stop")
 async def hold_stop():
