@@ -1,19 +1,76 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Check-In</title></head>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Check-In</title>
+  <style>
+    body{font-family:sans-serif;padding:24px;background:#fff}
+    #rosterList{margin-top:12px;padding:0;list-style:none}
+    #rosterList li{padding:6px;border-bottom:1px solid #eee}
+    #checkinForm{margin-top:12px}
+  </style>
+</head>
 <body>
-  <h2>Check-In Scanner</h2>
-  <div id="rosterList">Roster will appear here</div>
-  <input id="manualName" placeholder="TRAINER NAME"/>
-  <button id="manualAdd">Add</button>
+  <h1>Check-In</h1>
+  <form id="checkinForm" onsubmit="return false" data-test-id="checkin-form">
+    <input id="name" placeholder="Your name" data-test-id="checkin-name" />
+    <button id="checkinBtn" data-test-id="checkin-submit">Check In</button>
+  </form>
+
+  <h2>Roster</h2>
+  <ul id="rosterList" data-test-id="roster-list"></ul>
+
   <script>
-    document.getElementById('manualAdd').addEventListener('click', async ()=>{
-      const name = document.getElementById('manualName').value.trim();
-      if (!name) return alert('Enter name');
-      await fetch('/api/checkin/manual', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name})}).catch(()=>{});
-      // naive local feedback
-      const el = document.createElement('div'); el.textContent = name; document.getElementById('rosterList').appendChild(el);
+    async function fetchRoster() {
+      try {
+        const r = await fetch('/api/roster');
+        if (!r.ok) return [];
+        return await r.json();
+      } catch (e) { return []; }
+    }
+
+    async function renderRoster() {
+      const roster = await fetchRoster();
+      const list = document.getElementById('rosterList');
+      list.innerHTML = '';
+      roster.forEach((entry, idx) => {
+        const li = document.createElement('li');
+        li.dataset.index = idx;
+        li.textContent = entry.name || JSON.stringify(entry);
+        list.appendChild(li);
+      });
+    }
+
+    async function manualCheckin(name) {
+      try {
+        const r = await fetch('/api/checkin/manual', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ name })
+        });
+        if (r.ok) {
+          // small delay to allow server to persist into in-memory state then refresh
+          await new Promise(r => setTimeout(r, 120));
+          await renderRoster();
+        } else {
+          console.error('checkin failed', r.status);
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    document.getElementById('checkinBtn').addEventListener('click', async () => {
+      const name = document.getElementById('name').value.trim();
+      if (!name) return;
+      await manualCheckin(name);
+      document.getElementById('name').value = '';
     });
+
+    // Poll roster every 700ms so tests that post server-side updates see them
+    (async () => {
+      await renderRoster();
+      setInterval(renderRoster, 700);
+    })();
   </script>
 </body>
 </html>
