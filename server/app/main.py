@@ -7,9 +7,6 @@ import threading
 
 app = FastAPI(title="PokemonParty Mock Server")
 
-# Serve static frontend files from ./frontend
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
 # Allow CORS for local testing
 app.add_middleware(
     CORSMiddleware,
@@ -129,3 +126,6 @@ async def hold_stop():
 async def api_catchall(path: str, request: Request):
     # Return a generic success for unknown POST endpoints to keep tests moving.
     return JSONResponse({"status": "ok", "path": path})
+
+# Mount static files AFTER API routes to avoid conflicts
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
