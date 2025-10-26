@@ -49,7 +49,7 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          npx playwright test playwright/tests/phase1.spec.ts --project=chromium --reporter=list
+          npx playwright test --project=chromium --reporter=list
 
       - name: Upload Playwright HTML report
         if: always()
