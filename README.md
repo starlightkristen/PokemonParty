@@ -67,9 +67,16 @@ The project includes **8 comprehensive integration tests** with **100% pass rate
 
 ## 📝 Contributing
 
-Pull requests are welcome! All PRs require:
-- Passing CI checks
-- Code owner review (@starlightkristen)
+Pull requests are welcome! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) guide for details on:
+- Setting up your development environment
+- Running tests locally
+- Making quality pull requests
+- Code review process
+
+All PRs require:
+- ✅ Passing CI checks (all 8 tests must pass)
+- ✅ Code owner review (@starlightkristen)
+- ✅ Updated documentation (if applicable)
 
 ## 📜 License
 
