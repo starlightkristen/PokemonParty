@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test("hold scanner shows winner (robust) [independent]", async ({ page }) => {
-  await page.goto('/hold-scanner.html?showWinner=1');
+  await page.goto("/hold-scanner.html");
 
   await page.waitForLoadState("networkidle");
   await page.waitForSelector("[data-test-id='gcount'], #gcount", { timeout: 8000 });
