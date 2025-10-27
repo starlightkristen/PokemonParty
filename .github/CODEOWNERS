@@ -1,0 +1,8 @@
+# Default code owner — all files reviewed by starlightkristen
+* @starlightkristen
+
+# Playwright tests require extra scrutiny
+/playwright/ @starlightkristen
+
+# CI workflows require review
+/.github/workflows/ @starlightkristen
