@@ -37,25 +37,15 @@ npx playwright test
 
 ## 📊 Test Suite
 
-The project includes **8 comprehensive integration tests** with **100% pass rate**:
-
-### Phase 1 Tests (`phase1.spec.ts`):
-1. ✅ **API Health and Animals Catalog** - Validates backend endpoints
-2. ✅ **Manual check-in API and roster** - Tests user registration flow
-3. ✅ **Welcome page navigation** - Validates page routing
-4. ✅ **Habitat animal switch** - Tests dynamic content updates
-5. ✅ **Scene progress updates** - Validates UI state management
-6. ✅ **Session persistence** - Tests state recovery
-
-### Specialized Tests:
-7. ✅ **Hold Type Scanner** (`hold-scanner.spec.ts`) - Uses `?showWinner=1` for deterministic testing
-8. ✅ **Welcome navigation** (`welcome.spec.ts`) - Independent navigation validation
-
-### Test Features:
-- 🎯 **Deterministic execution** via query parameters
-- ⚡ **Fast execution** (< 10 seconds total)
-- 🔄 **Nightly smoke tests** (5 AM UTC)
-- 📊 **Automatic report generation**
+The project includes 8 comprehensive integration tests:
+1. API Health and Animals Catalog
+2. Welcome page navigation
+3. Manual check-in API and roster
+4. Vote propagation
+5. Habitat animal switch
+6. Scene progress updates
+7. Hold Type Scanner
+8. Session persistence
 
 ## 🛠️ Architecture
 
