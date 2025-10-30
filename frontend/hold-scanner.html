@@ -60,23 +60,6 @@
       await updateCounts();
       setInterval(updateCounts, 700);
     })();
-
-    // CI test helper: reveal winner banner via ?showWinner=1
-    (function(){
-      try {
-        const params = new URLSearchParams(location.search);
-        if (params.get('showWinner') === '1') {
-          const banner = document.getElementById('winnerBanner');
-          const text = document.getElementById('winnerText');
-          if (banner && text) {
-            text.textContent = params.get('winner') || 'TEAM PREDICTS';
-            banner.style.display = 'block';
-          }
-        }
-      } catch(e) {
-        console.error('Test helper error:', e);
-      }
-    })();
   </script>
 </body>
 </html>
