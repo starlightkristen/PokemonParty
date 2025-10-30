@@ -8,7 +8,7 @@
     body{font-family:sans-serif;padding:24px;background:#fafafa}
     #counts{display:flex;gap:12px}
     .countBox{padding:8px;border:1px solid #ddd;border-radius:6px}
-    #winnerBanner{margin-top:12px;padding:10px;background:#e6ffe6;display:none}
+    #winnerBanner{margin-top:12px;padding:10px;background:#e6ffe6}
   </style>
 </head>
 <body>
@@ -18,7 +18,7 @@
     <div class="countBox">W: <span id="wcount" data-test-id="wcount">0</span></div>
     <div class="countBox">F: <span id="fcount" data-test-id="fcount">0</span></div>
   </div>
-  <div id="winnerBanner" data-test-id="hold-winner">WINNER: <span id="winnerText"></span></div>
+  <div id="winnerBanner" data-test-id="hold-winner">TEAM PREDICTS: <span id="winnerText">READY</span></div>
 
   <script>
     async function fetchHoldState() {
