@@ -11,6 +11,14 @@ param(
 $ErrorActionPreference = 'Stop'
 Write-Host "[INFO] Starting Pokemon Party setup..." -ForegroundColor Cyan
 
+# 0. Import Moonchild UI if present
+if (Test-Path ".\scripts\import-moonchild-ui.ps1" -and (Test-Path ".\moonchild-ui")) {
+    Write-Host "[INFO] Found Moonchild UI. Importing..." -ForegroundColor Cyan
+    & ".\scripts\import-moonchild-ui.ps1" -RepoRoot "." -MoonchildFolder ".\moonchild-ui" -FrontendFolder ".\frontend"
+} else {
+    Write-Host "[INFO] No Moonchild UI to import. Skipping." -ForegroundColor Gray
+}
+
 # 1. Check we're in repo root
 if (-not (Test-Path ".git")) {
     Write-Host "[FAIL] Not in a git repository. Please cd to the PokemonParty root." -ForegroundColor Red
